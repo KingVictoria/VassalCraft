@@ -2,6 +2,10 @@ package groups;
 
 import java.util.ArrayList;
 
+/**
+ * The manager for the Groups system
+ * @author KingVictoria
+ */
 public class Groups {
 	
 	private static ArrayList<Group> groups;
