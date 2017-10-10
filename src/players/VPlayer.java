@@ -1,6 +1,7 @@
 package players;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -29,6 +30,19 @@ public class VPlayer implements Serializable {
 	public VPlayer(Player player){
 		uuid = player.getUniqueId();
 		Players.addPlayer(this);
+	}
+	
+	/**
+	 * Gets all cities to which this is a member
+	 * @return ArrayList of City
+	 */
+	public ArrayList<City> getCities(){
+		ArrayList<City> cities = new ArrayList<City>();
+		for(City city: Groups.getCities())
+			if(city.getMembers().contains(this))
+				cities.add(city);
+		
+		return cities;
 	}
 	
 	/**
