@@ -3,6 +3,8 @@ package groups;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import location.Claim;
+
 /**
  * The manager for the Groups system
  * @author KingVictoria
@@ -12,6 +14,23 @@ public class Groups implements Serializable {
 	private static final long serialVersionUID = -7579063595516434513L;
 	
 	private static ArrayList<Group> groups;
+	
+	/**
+	 * Gets all of the City claims
+	 * @return ArrayList of Claim
+	 */
+	public static ArrayList<Claim> getClaims(){
+		ArrayList<Claim> claims = new ArrayList<Claim>();
+		
+		for(Group group: groups)
+			if(group instanceof City){
+				City city = (City) group;
+				for(Claim claim: city.getClaims())
+					claims.add(claim);
+			}
+		
+		return claims;
+	}
 	
 	/**
 	 * Gets a free id integer for creating a new group

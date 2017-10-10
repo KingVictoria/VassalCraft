@@ -1,9 +1,11 @@
 package groups;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import org.bukkit.Location;
 
+import location.Claim;
 import players.VPlayer;
 
 /**
@@ -13,6 +15,8 @@ import players.VPlayer;
 public class City extends Group implements Serializable {
 
 	private static final long serialVersionUID = 2699643553534299461L;
+	
+	ArrayList<Claim> claims;
 
 	/**
 	 * Creates a city at a given location
@@ -21,6 +25,26 @@ public class City extends Group implements Serializable {
 	 */
 	public City(VPlayer creator, Location loc) {
 		super(creator);
+		
+		claims.add(new Claim(loc));
+	}
+	
+	public ArrayList<Claim> getClaims(){
+		return claims;
+	}
+	
+	/**
+	 * Adds a claim to the City
+	 * @param loc the location where the claim should be added
+	 * @return false if the the location is already claimed
+	 */
+	public boolean addClaim(Location loc){
+		for(Claim claim: Groups.getClaims())
+			if(claim.equals(loc.getChunk()))
+				return false;
+		
+		claims.add(new Claim(loc));
+		return true;
 	}
 
 }
