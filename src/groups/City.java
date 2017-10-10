@@ -16,19 +16,23 @@ public class City extends Group implements Serializable {
 
 	private static final long serialVersionUID = 2699643553534299461L;
 	
-	ArrayList<Claim> claims;
+	private ArrayList<Claim> claims;
 
 	/**
 	 * Creates a city at a given location
 	 * @param creator The VPlayer reference to the creator of the city
 	 * @param loc The location of the city
 	 */
-	public City(VPlayer creator, Location loc) {
-		super(creator);
+	public City(VPlayer creator, String name, Location loc) {
+		super(creator, name);
 		
 		claims.add(new Claim(loc));
 	}
 	
+	/**
+	 * Gets the claims of this city
+	 * @return ArrayList of Claim
+	 */
 	public ArrayList<Claim> getClaims(){
 		return claims;
 	}

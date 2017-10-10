@@ -17,16 +17,23 @@ public class Group implements Serializable {
 
 	private int id;
 	
+	private String name;
 	private ArrayList<UUID> members = new ArrayList<UUID>();
 	
 	/**
 	 * Creates a group
 	 * @param creator the creator of the group
 	 */
-	public Group(VPlayer creator){
+	public Group(VPlayer creator, String name){
 		id = Groups.getFreeId();
 		members.add(creator.getUniqueId());
 		Groups.addGroup(this);
+		if(!setName(name)){
+			int i = 0;
+			while(true)
+				if(setName("fail"+(i++)))
+					break;
+		}
 	}
 	
 	/**
@@ -50,6 +57,14 @@ public class Group implements Serializable {
 					players.add(player);
 		
 		return players;
+	}
+	
+	/**
+	 * Gets the name of the group
+	 * @return String name
+	 */
+	public String getName(){
+		return name;
 	}
 	
 	/**
@@ -88,6 +103,20 @@ public class Group implements Serializable {
 					Groups.removeGroup(this);
 				members.remove(uuid);
 			}
+	}
+	
+	/**
+	 * Sets the name of the group
+	 * @param name String name
+	 * @return false if the name already exists
+	 */
+	public boolean setName(String name){
+		for(String group: Groups.getNames())
+			if(group.equalsIgnoreCase(name))
+				return false;
+		
+		this.name = name;
+		return true;
 	}
 
 }

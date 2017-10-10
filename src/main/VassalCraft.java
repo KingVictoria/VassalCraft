@@ -2,6 +2,9 @@ package main;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
+import commands.CommandVassalCraft;
+import events.JoinEventListener;
+
 public class VassalCraft extends JavaPlugin {
 	
 	private static VassalCraft instance;
@@ -20,10 +23,16 @@ public class VassalCraft extends JavaPlugin {
 	public void onEnable(){
 		instance = this;
 		
+		// FileHandler
 		fileHandler = new FileHandler();
 		fileHandler.load();
 		
+		// Event Listener
+		getServer().getPluginManager().registerEvents(new JoinEventListener(), this);
 		
+		// Commands
+		getCommand("vassalcraft").setExecutor(new CommandVassalCraft());
+		getCommand("vc").setExecutor(new CommandVassalCraft());
 	}
 	
 	@Override
