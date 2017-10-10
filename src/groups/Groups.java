@@ -43,6 +43,14 @@ public class Groups implements Serializable {
 	}
 	
 	/**
+	 * Gets all Groups as an ArrayList
+	 * @return ArrayList of Group
+	 */
+	public static ArrayList<Group> getGroups(){
+		return groups;
+	}
+	
+	/**
 	 * Sets the groups to a new ArrayList (used for loading)
 	 * @param list ArrayList of type Group
 	 */
