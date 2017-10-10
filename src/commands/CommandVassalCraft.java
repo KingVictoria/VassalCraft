@@ -105,9 +105,18 @@ public class CommandVassalCraft implements CommandExecutor {
 		// Remove Member
 		if(args[0].equalsIgnoreCase("removemember") || args[0].equalsIgnoreCase("rm"))
 			if(args.length > 1){
-				
+				// TODO implement remove member code
 			}else{
 				player.sendMessage(ChatColor.YELLOW+"USAGE: removemember/rm <name>");
+				return true;
+			}
+		
+		// Add Member
+		if(args[0].equalsIgnoreCase("addmember") || args[0].equalsIgnoreCase("am"))
+			if(args.length > 1){
+				// TODO implement add member code
+			}else{
+				player.sendMessage(ChatColor.YELLOW+"USAGE: addmember/am <name>");
 				return true;
 			}
 		
@@ -206,6 +215,7 @@ public class CommandVassalCraft implements CommandExecutor {
 		player.sendMessage(ChatColor.YELLOW+"claim/c - claims chunk");
 		player.sendMessage(ChatColor.YELLOW+"setmain/sa <name...> - sets main city with <name...>");
 		player.sendMessage(ChatColor.YELLOW+"removemember/rm <name> - removes a member");
+		player.sendMessage(ChatColor.YELLOW+"addmember/am <name> - adds a member");
 		
 		return true;
 	}
