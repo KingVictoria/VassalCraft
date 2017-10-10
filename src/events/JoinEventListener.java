@@ -16,7 +16,7 @@ public class JoinEventListener implements Listener {
 	public void onPlayerJoin(PlayerJoinEvent e) {
 		Player player = e.getPlayer();
 		
-		if(Players.getPlayer(player.getUniqueId()) != null){
+		if(Players.getPlayer(player.getUniqueId()) == null){
 			new VPlayer(player);
 			player.sendMessage(ChatColor.YELLOW+"Welcome to "+Bukkit.getServerName()+" "+player.getName()+"!");
 		}else{

@@ -1,10 +1,15 @@
 package commands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.map.MapRenderer;
+import org.bukkit.map.MapView;
 
 import groups.City;
 import groups.Groups;
@@ -30,7 +35,7 @@ public class CommandVassalCraft implements CommandExecutor {
 			if(args.length > 1){
 				String name = args[1];
 				for(int i = 2; i < args.length; i++)
-					name += args[i];
+					name += " "+args[i];
 				
 				if(!newCity(player, name, player.getLocation())){
 					player.sendMessage(ChatColor.YELLOW+"USAGE: new/n <name...>");
@@ -51,10 +56,11 @@ public class CommandVassalCraft implements CommandExecutor {
 		// Claim
 		if(args[0].equalsIgnoreCase("claim") || args[0].equalsIgnoreCase("c"))
 			if(claim(player)){
+				player.sendMessage(ChatColor.YELLOW+"This location has been claimed for "+ChatColor.LIGHT_PURPLE+Groups.getCity(player.getLocation()).getName());
 				return true;
 			}else{
 				player.sendMessage(ChatColor.YELLOW+"Unable to claim that location because already owned by "+ChatColor.LIGHT_PURPLE+Groups.getCity(player.getLocation()).getName());
-				return false;
+				return true;
 			}
 			
 		
@@ -72,18 +78,19 @@ public class CommandVassalCraft implements CommandExecutor {
 	}
 
 	/**
-	 * Tells the player what city they're in or if the chunk is empty
+	 * Gets a claims map
 	 * @param player Player
 	 * @return true
 	 */
+	@SuppressWarnings("deprecation")
 	private boolean map(Player player) {
-		for(Claim claim: Groups.getClaims())
-			if(claim.equals(player.getLocation().getChunk())){
-				player.sendMessage(ChatColor.YELLOW+"CITY: "+ChatColor.LIGHT_PURPLE+Groups.getCity(claim).getName());
-				return true;
-			}
-					
-		player.sendMessage(ChatColor.YELLOW+"Empty");
+		MapView mapview = Bukkit.createMap(player.getWorld());
+		for(MapRenderer r: mapview.getRenderers())
+			mapview.removeRenderer(r);
+		mapview.addRenderer(new LocalMap());
+		
+		ItemStack map = new ItemStack(Material.MAP, 1, mapview.getId());
+		player.getInventory().addItem(map);
 		return true;
 	}
 

@@ -16,7 +16,7 @@ public class City extends Group implements Serializable {
 
 	private static final long serialVersionUID = 2699643553534299461L;
 	
-	private ArrayList<Claim> claims;
+	private ArrayList<Claim> claims = new ArrayList<Claim>();
 
 	/**
 	 * Creates a city at a given location

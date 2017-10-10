@@ -17,7 +17,7 @@ public class Group implements Serializable {
 
 	private int id;
 	
-	private String name;
+	private String name = "";
 	private ArrayList<UUID> members = new ArrayList<UUID>();
 	
 	/**

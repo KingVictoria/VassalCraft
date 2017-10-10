@@ -3,7 +3,7 @@ main: main.VassalCraft
 version: 0.1
 author: kingvictoria
 commands: 
-  vassalcity:
+  vassalcraft:
     description: Help for VassalCraft
     usage: /vc help
     aliases: vc

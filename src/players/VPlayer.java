@@ -18,7 +18,7 @@ public class VPlayer implements Serializable {
 	
 	private static final long serialVersionUID = 5676352331141799837L;
 	
-	private int mainCity;
+	private int mainCity = -1;
 	
 	private UUID uuid;
 	
