@@ -39,7 +39,7 @@ public class CommandVassalCraft implements CommandExecutor {
 					name += " "+args[i];
 				
 				if(!newCity(player, name, player.getLocation())){
-					player.sendMessage(ChatColor.YELLOW+"USAGE: new/n <name...>");
+					player.sendMessage(ChatColor.YELLOW+"Unable to make city because location already owned by "+ChatColor.LIGHT_PURPLE+Groups.getCity(player.getLocation()).getName());
 				}else{
 					player.sendMessage(ChatColor.YELLOW+"City of "+ChatColor.LIGHT_PURPLE+Groups.getCity(player.getLocation()).getName()+ChatColor.YELLOW+" has been founded here.");
 				}
@@ -56,10 +56,10 @@ public class CommandVassalCraft implements CommandExecutor {
 		
 		// Claim
 		if(args[0].equalsIgnoreCase("claim") || args[0].equalsIgnoreCase("c"))
-			if(claim(player)){
+			if(claim(player) && args.length == 1){
 				player.sendMessage(ChatColor.YELLOW+"This location has been claimed for "+ChatColor.LIGHT_PURPLE+Groups.getCity(player.getLocation()).getName());
 				return true;
-			}else{
+			}else if(args.length == 1){
 				if(Players.getPlayer(player.getUniqueId()).getMainCity() == null){
 					player.sendMessage(ChatColor.YELLOW+"You have no main city!");
 					return true;
@@ -67,6 +67,23 @@ public class CommandVassalCraft implements CommandExecutor {
 				
 				player.sendMessage(ChatColor.YELLOW+"Unable to claim that location because already owned by "+ChatColor.LIGHT_PURPLE+Groups.getCity(player.getLocation()).getName());
 				return true;
+			}else{
+				String name = args[1];
+				for(int i = 2; i < args.length; i++)
+					name += " "+args[i];
+				
+				if(!(Groups.getGroup(name) instanceof City)){
+					player.sendMessage(ChatColor.YELLOW+"That is not the name of a city!");
+					return true;
+				}
+					
+				City city = (City) Groups.getGroup(name);
+				if(claim(player, city, player.getLocation())){
+					player.sendMessage(ChatColor.YELLOW+"This location has been claimed for "+ChatColor.LIGHT_PURPLE+Groups.getCity(player.getLocation()).getName());
+					return true;
+				}else{
+					player.sendMessage(ChatColor.YELLOW+"Unable to claim that location because already owned by "+ChatColor.LIGHT_PURPLE+Groups.getCity(player.getLocation()).getName());
+				}
 			}
 		
 		// Set Main City
@@ -83,6 +100,15 @@ public class CommandVassalCraft implements CommandExecutor {
 					player.sendMessage(ChatColor.YELLOW+"USAGE: setmain/sa <name...>");
 					return true;
 				}
+			}
+		
+		// Remove Member
+		if(args[0].equalsIgnoreCase("removemember") || args[0].equalsIgnoreCase("rm"))
+			if(args.length > 1){
+				
+			}else{
+				player.sendMessage(ChatColor.YELLOW+"USAGE: removemember/rm <name>");
+				return true;
 			}
 		
 		return false;
@@ -117,6 +143,20 @@ public class CommandVassalCraft implements CommandExecutor {
 			return false;
 		
 		return city.addClaim(player.getLocation());
+	}
+	
+	/**
+	 * Claims a chunk for a specified city
+	 * @param player Player
+	 * @param city City
+	 * @param loc Location
+	 * @return false if unable to claim
+	 */
+	private boolean claim(Player player, City city, Location loc){
+		if(!city.hasMember(Players.getPlayer(player.getUniqueId())))
+			return false;
+			
+		return city.addClaim(loc);
 	}
 
 	/**
@@ -159,12 +199,13 @@ public class CommandVassalCraft implements CommandExecutor {
 	 * @return true
 	 */
 	private boolean help(Player player){
-		player.sendMessage(ChatColor.LIGHT_PURPLE+"---===HELP===---");
-		player.sendMessage(ChatColor.YELLOW+"help/? - brings up help");
+		player.sendMessage(ChatColor.LIGHT_PURPLE+"---===HELP-[pg 1]===---");
+		player.sendMessage(ChatColor.YELLOW+"help/? <pg#> - brings up help");
 		player.sendMessage(ChatColor.YELLOW+"new/n <name...> - makes a new city with <name...>");
 		player.sendMessage(ChatColor.YELLOW+"map/m - brings up map");
 		player.sendMessage(ChatColor.YELLOW+"claim/c - claims chunk");
 		player.sendMessage(ChatColor.YELLOW+"setmain/sa <name...> - sets main city with <name...>");
+		player.sendMessage(ChatColor.YELLOW+"removemember/rm <name> - removes a member");
 		
 		return true;
 	}
