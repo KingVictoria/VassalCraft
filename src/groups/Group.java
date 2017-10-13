@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import net.md_5.bungee.api.ChatColor;
+import perms.Perms;
+import perms.Rank;
 import players.Players;
 import players.VPlayer;
 
@@ -19,6 +22,7 @@ public class Group implements Serializable {
 	
 	private String name = "";
 	private ArrayList<UUID> members = new ArrayList<UUID>();
+	private ArrayList<Rank> ranks = new ArrayList<Rank>();
 	
 	/**
 	 * Creates a group
@@ -34,6 +38,9 @@ public class Group implements Serializable {
 				if(setName("fail"+(i++)))
 					break;
 		}
+		Rank owner = new Rank("owner", id);
+		owner.addPerm(Perms.ALL);
+		ranks.add(owner);
 	}
 	
 	/**
@@ -65,6 +72,14 @@ public class Group implements Serializable {
 	 */
 	public String getName(){
 		return name;
+	}
+	
+	/**
+	 * Gets the ranks in this group
+	 * @return ArrayList of Rank
+	 */
+	public ArrayList<Rank> getRanks(){
+		return ranks;
 	}
 	
 	/**
@@ -103,6 +118,10 @@ public class Group implements Serializable {
 		if(player.getMainCity().getId() == id)
 			player.setMainCity(null);
 		
+		for(Rank rank: ranks)
+			if(rank.getRanked().contains(player))
+				rank.removeRanked(player);
+		
 		if(members.size() == 1)
 			Groups.removeGroup(this);
 		
@@ -121,6 +140,21 @@ public class Group implements Serializable {
 		
 		this.name = name;
 		return true;
+	}
+	
+	/**
+	 * Sends a message to the group
+	 * @param message String
+	 */
+	public void sendMessage(String message){
+		for(VPlayer player: getMembers())
+			if(player.isOnline())
+				player.getPlayer().sendMessage(ChatColor.AQUA+"["+name+"] "+ChatColor.YELLOW+message);
+	}
+	
+	@Override
+	public String toString(){
+		return name;
 	}
 
 }

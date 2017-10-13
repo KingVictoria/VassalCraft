@@ -18,6 +18,7 @@ import groups.Group;
 import groups.Groups;
 import location.Claim;
 import net.md_5.bungee.api.ChatColor;
+import perms.Perms;
 import players.Players;
 import players.VPlayer;
 
@@ -31,8 +32,18 @@ public class CommandVassalCraft implements CommandExecutor {
 		Player player = (Player) sender;
 		
 		// Help
-		if(args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("?"))
-			return help(player);
+		if(args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("?")){
+			if(args.length == 1)
+				return help(player, 1);
+			if(args.length == 2){
+				try{
+					int page = (new Integer(args[1])).intValue();
+					return help(player, page);
+				}catch(Exception e){
+					return false;
+				}
+			}
+		}
 		
 		// New City
 		if(args[0].equalsIgnoreCase("new") || args[0].equalsIgnoreCase("n")){
@@ -40,8 +51,9 @@ public class CommandVassalCraft implements CommandExecutor {
 				String name = args[1];
 				for(int i = 2; i < args.length; i++)
 					name += " "+args[i];
+				VPlayer vplayer = Players.getPlayer(player.getUniqueId());
 				
-				if(!newCity(player, name, player.getLocation())){
+				if(!newCity(vplayer, name, player.getLocation())){
 					player.sendMessage(ChatColor.YELLOW+"Unable to make city because location already owned by "+ChatColor.LIGHT_PURPLE+Groups.getCity(player.getLocation()).getName());
 				}else{
 					player.sendMessage(ChatColor.YELLOW+"City of "+ChatColor.LIGHT_PURPLE+Groups.getCity(player.getLocation()).getName()+ChatColor.YELLOW+" has been founded here.");
@@ -59,7 +71,7 @@ public class CommandVassalCraft implements CommandExecutor {
 		
 		// Claim
 		if(args[0].equalsIgnoreCase("claim") || args[0].equalsIgnoreCase("c"))
-			if(claim(player) && args.length == 1){
+			if(claim(Players.getPlayer(player.getUniqueId())) && args.length == 1){
 				player.sendMessage(ChatColor.YELLOW+"This location has been claimed for "+ChatColor.LIGHT_PURPLE+Groups.getCity(player.getLocation()).getName());
 				return true;
 			}else if(args.length == 1){
@@ -81,7 +93,8 @@ public class CommandVassalCraft implements CommandExecutor {
 				}
 					
 				City city = (City) Groups.getGroup(name);
-				if(claim(player, city, player.getLocation())){
+				VPlayer vplayer = Players.getPlayer(player.getUniqueId());
+				if(claim(vplayer, city, player.getLocation())){
 					player.sendMessage(ChatColor.YELLOW+"This location has been claimed for "+ChatColor.LIGHT_PURPLE+Groups.getCity(player.getLocation()).getName());
 					return true;
 				}else{
@@ -95,12 +108,13 @@ public class CommandVassalCraft implements CommandExecutor {
 				String name = args[1];
 				for(int i = 2; i < args.length; i++)
 					name += " "+args[i];
+				VPlayer vplayer = Players.getPlayer(player.getUniqueId());
 				
-				if(setMain(player, name)){
+				if(setMain(vplayer, name)){
 					player.sendMessage(ChatColor.YELLOW+"Main city set to: "+ChatColor.LIGHT_PURPLE+Groups.getGroup(name).getName());
 					return true;
 				}else{
-					player.sendMessage(ChatColor.YELLOW+"USAGE: setmain/sa <name...>");
+					player.sendMessage(ChatColor.YELLOW+"USAGE: setmain/sa <city...>");
 					return true;
 				}
 			}
@@ -109,8 +123,9 @@ public class CommandVassalCraft implements CommandExecutor {
 		if(args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("r"))
 			if(args.length == 2){
 				City city = Players.getPlayer(player.getUniqueId()).getMainCity();
+				VPlayer remover = Players.getPlayer(player.getUniqueId());
 				VPlayer toRemove = Players.getPlayer(args[1]);
-				if(removeMember(player, toRemove, city)){
+				if(removeMember(remover, toRemove, city)){
 					player.sendMessage(ChatColor.YELLOW+"Successfully removed member "+ChatColor.LIGHT_PURPLE+toRemove.getOfflinePlayer().getName());
 					return true;
 				}else{
@@ -125,7 +140,7 @@ public class CommandVassalCraft implements CommandExecutor {
 		// List Invites
 		if(args[0].equalsIgnoreCase("listinvites") || args[0].equalsIgnoreCase("li"))
 			if(args.length == 1){
-				ArrayList<String> groups = listInvites(player);
+				ArrayList<String> groups = listInvites(Players.getPlayer(player.getUniqueId()));
 				
 				if(groups.size() == 0){
 					player.sendMessage(ChatColor.YELLOW+"You have no invites!");
@@ -144,7 +159,7 @@ public class CommandVassalCraft implements CommandExecutor {
 		// Invite (<name>) (<accept/a:decline/d>) <city...>
 		if(args[0].equalsIgnoreCase("invite") || args[0].equalsIgnoreCase("i"))
 			if(args.length < 3){
-				player.sendMessage(ChatColor.YELLOW+"USAGE: invite/i (<name>)(<accept/a:decline/d>) <city...>");
+				player.sendMessage(ChatColor.YELLOW+"USAGE: invite/i (<name>)(<accept/a:decline/d>) <group...>");
 				return true;
 			}else if(args[1].equalsIgnoreCase("accept") || args[1].equalsIgnoreCase("a")){
 				// Accept
@@ -155,9 +170,10 @@ public class CommandVassalCraft implements CommandExecutor {
 				
 				if(acceptInvite(Players.getPlayer(player.getUniqueId()), group)){
 					player.sendMessage(ChatColor.YELLOW+"You have been added as a member to "+ChatColor.LIGHT_PURPLE+group.getName());
+					group.sendMessage(ChatColor.YELLOW+player.getName()+ChatColor.YELLOW+" has accepted an invite to "+ChatColor.LIGHT_PURPLE+group.getName());
 					return true;
 				}else{
-					player.sendMessage(ChatColor.YELLOW+"USAGE: invite/i <accept/a> <city...>");
+					player.sendMessage(ChatColor.YELLOW+"USAGE: invite/i <accept/a> <group...>");
 					return true;
 				}
 			}else if(args[1].equalsIgnoreCase("decline") || args[1].equalsIgnoreCase("d")){
@@ -171,25 +187,54 @@ public class CommandVassalCraft implements CommandExecutor {
 					player.sendMessage(ChatColor.YELLOW+"You have declined an invite to "+ChatColor.LIGHT_PURPLE+group.getName());
 					return true;
 				}else{
-					player.sendMessage(ChatColor.YELLOW+"USAGE: invite/i <decline/d> <city...>");
+					player.sendMessage(ChatColor.YELLOW+"USAGE: invite/i <decline/d> <group...>");
 					return true;
 				}
 			}else{
 				// Invite a Player
+				VPlayer inviter = Players.getPlayer(player.getUniqueId());
 				VPlayer toInvite = Players.getPlayer(args[1]);
 				String groupName = args[2];
 				for(int i = 3; i < args.length; i++)
 					groupName+=" "+args[i];
 				Group group = Groups.getGroup(groupName);
 				
-				if(invite(player, toInvite, group)){
+				if(invite(inviter, toInvite, group)){
 					player.sendMessage(ChatColor.LIGHT_PURPLE+toInvite.getOfflinePlayer().getName()+ChatColor.YELLOW+" invited to "+ChatColor.LIGHT_PURPLE+group.getName());
+					if(toInvite.isOnline()){
+						toInvite.getPlayer().sendMessage(ChatColor.YELLOW+"You have been invited to "+ChatColor.LIGHT_PURPLE+group.getName());
+						toInvite.getPlayer().sendMessage(ChatColor.YELLOW+"To accept use: "+ChatColor.LIGHT_PURPLE+"/vc i a "+group.getName());
+					}
 					return true;
 				}else{
-					player.sendMessage(ChatColor.YELLOW+"USAGE: invite/i <name> <city...>");
+					player.sendMessage(ChatColor.YELLOW+"USAGE: invite/i <name> <group...>");
 					return true;
 				}
 			}
+		
+		// List Members
+		if(args[0].equalsIgnoreCase("listmembers") || args[0].equalsIgnoreCase("lm")){
+			if(args.length == 1){
+				player.sendMessage(ChatColor.YELLOW+"USAGE: listmembers <group...>");
+				return true;
+			}
+			String groupName = args[1];
+			for(int i = 2; i < args.length; i++)
+				groupName+=" "+args[i];
+			Group group = Groups.getGroup(groupName);
+			
+			if(group == null){
+				player.sendMessage(ChatColor.YELLOW+"USAGE: listmembers <group...>");
+				return true;
+			}
+			
+			ArrayList<VPlayer> members = group.getMembers();
+			
+			player.sendMessage(ChatColor.YELLOW+"Members of "+ChatColor.LIGHT_PURPLE+group.getName());
+			for(VPlayer member: members)
+				player.sendMessage(ChatColor.YELLOW+" - "+member.getOfflinePlayer().getName());
+			return true;
+		}
 		
 		return false;
 	}
@@ -198,7 +243,7 @@ public class CommandVassalCraft implements CommandExecutor {
 	 * Declines an invite to a Group
 	 * @param player VPlayer
 	 * @param group Group
-	 * @return false if unable to decline the invite
+	 * @return false if unable to decline the invite (invite doesn't exist?)
 	 */
 	private boolean declineInvite(VPlayer player, Group group) {
 		if(player == null || group == null)
@@ -220,7 +265,7 @@ public class CommandVassalCraft implements CommandExecutor {
 	 * Accepts an invite to a group
 	 * @param player VPlayer
 	 * @param group Group
-	 * @return false if unable to accept the invite
+	 * @return false if unable to accept the invite (invite doesn't exist?)
 	 */
 	private boolean acceptInvite(VPlayer player, Group group) {
 		if(player == null || group == null)
@@ -241,16 +286,19 @@ public class CommandVassalCraft implements CommandExecutor {
 
 	/**
 	 * Invites a player to a group
-	 * @param player Inviter
+	 * @param inviter Inviter
 	 * @param toInvite Invitee
 	 * @param group Group
 	 * @return false if unable todo
 	 */
-	private boolean invite(Player player, VPlayer toInvite, Group group) {
-		if(player == null || toInvite == null || group == null)
+	private boolean invite(VPlayer inviter, VPlayer toInvite, Group group) {
+		if(inviter == null || toInvite == null || group == null)
 			return false;
 		
-		if(!group.hasMember(toInvite) || !group.hasMember(Players.getPlayer(player.getUniqueId())))
+		if(!group.hasMember(toInvite) || !group.hasMember(inviter))
+			return false;
+		
+		if(!inviter.hasPerm(Perms.INVITE_MEMBER, group))
 			return false;
 			
 		toInvite.addInvite(group);
@@ -259,16 +307,16 @@ public class CommandVassalCraft implements CommandExecutor {
 
 	/**
 	 * Gets all the names of the cities to which this player has invites
-	 * @param player Player
+	 * @param vplayer VPlayer
 	 * @return ArrayList of String
 	 */
-	private ArrayList<String> listInvites(Player player) {
+	private ArrayList<String> listInvites(VPlayer vplayer) {
 		ArrayList<String> groups = new ArrayList<String>();
 		
-		if(Players.getPlayer(player.getUniqueId()).getInvites().size() == 0)
+		if(vplayer.getInvites().size() == 0)
 			return groups;
 		
-		for(Group group: Players.getPlayer(player.getUniqueId()).getInvites())
+		for(Group group: vplayer.getInvites())
 			groups.add(group.getName());
 		
 		return groups;
@@ -276,16 +324,19 @@ public class CommandVassalCraft implements CommandExecutor {
 
 	/**
 	 * Removes a member from a group
-	 * @param player Player issuing command
+	 * @param remover VPlayer issuing command
 	 * @param toRemove VPlayer to remove
 	 * @param group Group to remove from
 	 * @return
 	 */
-	private boolean removeMember(Player player, VPlayer toRemove, Group group) {
-		if(group == null || toRemove == null || player == null)
+	private boolean removeMember(VPlayer remover, VPlayer toRemove, Group group) {
+		if(group == null || toRemove == null || remover == null)
 			return false;
 		
-		if(!group.hasMember(Players.getPlayer(player.getUniqueId())) || !group.hasMember(toRemove))
+		if(!group.hasMember(remover) || !group.hasMember(toRemove))
+			return false;
+		
+		if(!remover.hasPerm(Perms.REMOVE_MEMBER, group))
 			return false;
 		
 		group.removeMember(toRemove);
@@ -294,16 +345,15 @@ public class CommandVassalCraft implements CommandExecutor {
 
 	/**
 	 * Sets a players main city
-	 * @param player Player
+	 * @param player VPlayer
 	 * @param name String name
 	 * @return false if the city cannot be set
 	 */
-	private boolean setMain(Player player, String name) {
-		VPlayer vplayer = Players.getPlayer(player.getUniqueId());
+	private boolean setMain(VPlayer player, String name) {
 		
-		for(City city: vplayer.getCities())
+		for(City city: player.getCities())
 			if(city.getName().equalsIgnoreCase(name)){
-				vplayer.setMainCity(city);
+				player.setMainCity(city);
 				return true;
 			}
 		
@@ -312,33 +362,39 @@ public class CommandVassalCraft implements CommandExecutor {
 
 	/**
 	 * Claims a chunk for a player's main city
-	 * @param player
+	 * @param player VPlayer
 	 * @return false if unable to claim
 	 */
-	private boolean claim(Player player) {
+	private boolean claim(VPlayer player) {
 		City city = Players.getPlayer(player.getUniqueId()).getMainCity();
 		if(city == null)
 			return false;
 		
-		return city.addClaim(player.getLocation());
+		if(!player.hasPerm(Perms.CLAIM, city))
+			return false;
+		
+		return city.addClaim(player.getPlayer().getLocation());
 	}
 	
 	/**
 	 * Claims a chunk for a specified city
-	 * @param player Player
+	 * @param player VPlayer
 	 * @param city City
 	 * @param loc Location
 	 * @return false if unable to claim
 	 */
-	private boolean claim(Player player, City city, Location loc){
-		if(!city.hasMember(Players.getPlayer(player.getUniqueId())))
+	private boolean claim(VPlayer player, City city, Location loc){
+		if(!city.hasMember(player))
+			return false;
+		
+		if(!player.hasPerm(Perms.CLAIM, city))
 			return false;
 			
 		return city.addClaim(loc);
 	}
 
 	/**
-	 * Gets a claims map
+	 * Gets a claims map (temporary implementation)
 	 * @param player Player
 	 * @return true
 	 */
@@ -356,38 +412,65 @@ public class CommandVassalCraft implements CommandExecutor {
 
 	/**
 	 * Makes a new city
-	 * @param player owner
+	 * @param player owner VPlayer
 	 * @param name City name
 	 * @param location Location where the city shall be
 	 * @return false if chunk already claimed
 	 */
-	private boolean newCity(Player player, String name, Location location) {
+	private boolean newCity(VPlayer player, String name, Location location) {
 		for(Claim claim: Groups.getClaims())
 			if(claim.equals(location.getChunk()))
 				return false;
 		
-		new City(Players.getPlayer(player.getUniqueId()), name, location);
+		new City(player, name, location);
 		return true;
 	}
 
 
 	/**
-	 * Sends the help pages to the player
+	 * Sends the help pages to the player (temporary)
 	 * @param player Player
+	 * @param page int page number
 	 * @return true
 	 */
-	private boolean help(Player player){
-		player.sendMessage(ChatColor.LIGHT_PURPLE+"---===HELP-[pg 1]===---");
-		player.sendMessage(ChatColor.YELLOW+"help/? <pg#> - brings up help");
-		player.sendMessage(ChatColor.YELLOW+"new/n <name...> - makes a new city with <name...>");
-		player.sendMessage(ChatColor.YELLOW+"map/m - brings up map");
-		player.sendMessage(ChatColor.YELLOW+"claim/c - claims chunk");
-		player.sendMessage(ChatColor.YELLOW+"setmain/sa <name...> - sets main city with <name...>");
-		player.sendMessage(ChatColor.YELLOW+"remove/r <name> <city...> - removes a member");
-		player.sendMessage(ChatColor.YELLOW+"listinvites/li - lists invites");
-		player.sendMessage(ChatColor.YELLOW+"invite/i <name> <city...> - invites a member");
-		player.sendMessage(ChatColor.YELLOW+"invite/i <accept/a:decline/d> <city...> - accepts or declines an invite");
+	private boolean help(Player player, int page){
+		if(page == 2){
+			player.sendMessage(ChatColor.LIGHT_PURPLE+"---===HELP-[pg 2]===---");
+			player.sendMessage(ChatColor.YELLOW+"listmembers/lm <group...>"+ChatColor.WHITE+" - lists members of a group");
+			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
+			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
+			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
+			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
+			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
+			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
+			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
+			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
+			return true;
+		}
+		if(page == 3){
+			player.sendMessage(ChatColor.LIGHT_PURPLE+"---===HELP-[pg 3]===---");
+			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
+			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
+			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
+			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
+			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
+			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
+			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
+			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
+			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
+			return true;
+		}
 		
+		player.sendMessage(ChatColor.LIGHT_PURPLE+"---===HELP-[pg 1]===---");
+		player.sendMessage(ChatColor.YELLOW+"help/? <pg#>"+ChatColor.WHITE+" - brings up help");
+		player.sendMessage(ChatColor.YELLOW+"new/n <name...>"+ChatColor.WHITE+" - makes a new city with <name...>");
+		player.sendMessage(ChatColor.YELLOW+"map/m"+ChatColor.WHITE+" - brings up map");
+		player.sendMessage(ChatColor.YELLOW+"claim/c"+ChatColor.WHITE+" - claims chunk");
+		player.sendMessage(ChatColor.YELLOW+"setmain/sa <city...>"+ChatColor.WHITE+" - sets main city with <name...>");
+		player.sendMessage(ChatColor.YELLOW+"remove/r <name> <group...>"+ChatColor.WHITE+" - removes a member");
+		player.sendMessage(ChatColor.YELLOW+"listinvites/li"+ChatColor.WHITE+" - lists invites");
+		player.sendMessage(ChatColor.YELLOW+"invite/i <name> <group...>"+ChatColor.WHITE+" - invites a member");
+		player.sendMessage(ChatColor.YELLOW+"invite/i <accept/a:decline/d> <group...>"+ChatColor.WHITE+" - accepts/declines an invite");
 		return true;
 	}
 

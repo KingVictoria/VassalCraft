@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import org.bukkit.Location;
 
 import location.Claim;
+import players.Players;
+import players.VPlayer;
 
 /**
  * The manager for the Groups system
@@ -174,6 +176,12 @@ public class Groups implements Serializable {
      */
     public static void removeGroup(Group group){
     	groups.remove(group);
+    	for(VPlayer player: Players.getPlayers()){
+    		if(player.getMainCity() != null && player.getMainCity().equals(group))
+    			player.setMainCity(null);
+    		if(player.getInvites().size() > 0 && player.getInvites().contains(group))
+    			player.removeInvite(group);
+    	}
     }
 
 }

@@ -12,6 +12,8 @@ import groups.City;
 import groups.Group;
 import groups.Groups;
 
+import perms.Rank;
+
 /**
  * Serializable player reference with extra bits!
  * @author KingVictoria
@@ -106,6 +108,22 @@ public class VPlayer implements Serializable {
 	}
 	
 	/**
+	 * Determines whether this player has that rank in that Group
+	 * @param perm String
+	 * @param city City
+	 * @return true if has that permission
+	 */
+	public boolean hasPerm(String perm, Group group){
+		if(group.hasMember(this))
+			for(Rank rank: group.getRanks())
+				if(rank.getRanked().contains(this))
+					if(rank.hasPerm(perm))
+						return true;
+		
+		return false;
+	}
+	
+	/**
 	 * Gets the UUID referenced by this object
 	 * @return UUID
 	 */
@@ -154,6 +172,11 @@ public class VPlayer implements Serializable {
 	 */
 	public boolean isOnline(){
 		return getPlayer() != null;
+	}
+	
+	@Override
+	public String toString(){
+		return getOfflinePlayer().getName();
 	}
 
 }
