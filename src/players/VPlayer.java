@@ -9,6 +9,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import groups.City;
+import groups.Group;
 import groups.Groups;
 
 /**
@@ -22,6 +23,7 @@ public class VPlayer implements Serializable {
 	private int mainCity = -1;
 	
 	private UUID uuid;
+	private ArrayList<Integer> invites = new ArrayList<Integer>();
 	
 	/**
 	 * Creates an object VPlayer as a reference to a Player
@@ -43,6 +45,37 @@ public class VPlayer implements Serializable {
 				cities.add(city);
 		
 		return cities;
+	}
+	
+	/**
+	 * Gets all groups to which this is a member
+	 * @return ArrayList of Group
+	 */
+	public ArrayList<Group> getGroups(){
+		ArrayList<Group> groups = new ArrayList<Group>();
+		
+		for(Group group: Groups.getGroups())
+			if(group.getMembers().contains(this))
+				groups.add(group);
+		
+		return groups;
+	}
+	
+	/**
+	 * Gets all groups to which this has an invite
+	 * @return ArrayList of Group
+	 */
+	public ArrayList<Group> getInvites(){
+		ArrayList<Group> groupInvites = new ArrayList<Group>();
+		
+		if(invites.size() == 0)
+			return groupInvites;
+		
+		for(Group group: getGroups())
+			if(invites.contains(new Integer(group.getId())))
+				groupInvites.add(group);
+		
+		return groupInvites;
 	}
 	
 	/**
@@ -81,14 +114,38 @@ public class VPlayer implements Serializable {
 	}
 	
 	/**
-	 * Sets the main city (will not set if the player is not a member of that city!)
+	 * Sets the main city (will not set if the player is not a member of that city!) (if parameter is null will set to no city)
 	 * @param city The city to be set
 	 */
 	public void setMainCity(City city){
+		if(city == null){
+			mainCity = -1;
+			return;
+		}
+		
 		if(!city.hasMember(this))
 			return;
 		
 		mainCity = city.getId();
+	}
+	
+	/**
+	 * Adds an invite from a Group to this player
+	 * @param group Group
+	 */
+	public void addInvite(Group group){
+		if(invites.contains(new Integer(group.getId())))
+			return;
+		invites.add(new Integer(group.getId()));
+	}
+	
+	/**
+	 * Removes an invite to a Group from this player
+	 * @param group Group
+	 */
+	public void removeInvite(Group group){
+		if(invites.contains(new Integer(group.getId())))
+			invites.remove(new Integer(group.getId()));
 	}
 	
 	/**

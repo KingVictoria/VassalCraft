@@ -97,12 +97,16 @@ public class Group implements Serializable {
 	 * @param player VPlayer
 	 */
 	public void removeMember(VPlayer player){
-		for(UUID uuid: members)
-			if(uuid.equals(player.getUniqueId())){
-				if(members.size() == 1)
-					Groups.removeGroup(this);
-				members.remove(uuid);
-			}
+		if(!members.contains(player.getUniqueId()))
+			return;
+		
+		if(player.getMainCity().getId() == id)
+			player.setMainCity(null);
+		
+		if(members.size() == 1)
+			Groups.removeGroup(this);
+		
+		members.remove(player.getUniqueId());
 	}
 	
 	/**
