@@ -12,6 +12,7 @@ import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
 import groups.City;
+import groups.Group;
 import groups.Groups;
 import location.Claim;
 import net.md_5.bungee.api.ChatColor;
@@ -104,8 +105,16 @@ public class CommandVassalCraft implements CommandExecutor {
 		
 		// Remove Member
 		if(args[0].equalsIgnoreCase("removemember") || args[0].equalsIgnoreCase("rm"))
-			if(args.length > 1){
-				// TODO implement remove member code
+			if(args.length == 2){
+				City city = Players.getPlayer(player.getUniqueId()).getMainCity();
+				VPlayer toRemove = Players.getPlayer(args[1]);
+				if(removeMember(player, toRemove, city)){
+					player.sendMessage(ChatColor.YELLOW+"Successfully removed member "+ChatColor.LIGHT_PURPLE+toRemove.getOfflinePlayer().getName());
+					return true;
+				}else{
+					player.sendMessage(ChatColor.YELLOW+"USAGE: removemember/rm <name>");
+					return true;
+				}
 			}else{
 				player.sendMessage(ChatColor.YELLOW+"USAGE: removemember/rm <name>");
 				return true;
@@ -123,6 +132,21 @@ public class CommandVassalCraft implements CommandExecutor {
 		return false;
 	}
 	
+	/**
+	 * Removes a member from a group
+	 * @param player Player issuing command
+	 * @param toRemove VPlayer to remove
+	 * @param group Group to remove from
+	 * @return
+	 */
+	private boolean removeMember(Player player, VPlayer toRemove, Group group) {
+		if(!group.hasMember(Players.getPlayer(player.getUniqueId())) || !group.hasMember(toRemove))
+			return false;
+		
+		group.removeMember(toRemove);
+		return true;
+	}
+
 	/**
 	 * Sets a players main city
 	 * @param player Player

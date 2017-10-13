@@ -26,6 +26,19 @@ public class Players implements Serializable {
 		
 		return null;
 	}
+	
+	/**
+	 * Gets a player by their String name (must be exactly the same!)
+	 * @param name String name
+	 * @return VPlayer corresponding to name or null if player does not exist
+	 */
+	public static VPlayer getPlayer(String name){
+		for(VPlayer player: getPlayers())
+			if(player.getOfflinePlayer().getName().equals(name))
+				return player;
+		
+		return null;
+	}
 
 	/**
 	 * Gets all the VPlayer players
