@@ -57,6 +57,14 @@ public class Rank {
 	}
 	
 	/**
+	 * Gets a list of all perms
+	 * @return ArrayList of String
+	 */
+	public ArrayList<String> getPerms(){
+		return perms;
+	}
+	
+	/**
 	 * Adds a permission
 	 * @param perm String perm
 	 */

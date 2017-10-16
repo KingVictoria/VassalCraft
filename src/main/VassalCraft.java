@@ -4,6 +4,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import commands.CommandVassalCraft;
 import events.JoinEventListener;
+import events.PlayerInteractListener;
 
 public class VassalCraft extends JavaPlugin {
 	
@@ -29,6 +30,10 @@ public class VassalCraft extends JavaPlugin {
 		
 		// Event Listener
 		getServer().getPluginManager().registerEvents(new JoinEventListener(), this);
+		
+		// Guis (events)
+		getServer().getPluginManager().registerEvents(new PlayerInteractListener(), this);
+		
 		
 		// Commands
 		getCommand("vassalcraft").setExecutor(new CommandVassalCraft());

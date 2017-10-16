@@ -236,6 +236,14 @@ public class CommandVassalCraft implements CommandExecutor {
 			return true;
 		}
 		
+		//TEST COMMANDS TODO
+		/*
+		 *  player.sendMessage(ChatColor.YELLOW+"listranks/lr <group...>"+ChatColor.WHITE+" - lists ranks of a group");
+		 *	player.sendMessage(ChatColor.YELLOW+"getperms/gp <rank> <group...>"+ChatColor.WHITE+" - lists the perms of a rank");
+		 *	player.sendMessage(ChatColor.YELLOW+"rank <add:remove> <rank> <name...>"+ChatColor.WHITE+" - adds a player to a specified rank");
+		 *	player.sendMessage(ChatColor.YELLOW+"perm <add:remove> <rank> <perm...>"+ChatColor.WHITE+" - adds a perm to a rank");
+		 */
+		
 		return false;
 	}
 	
@@ -437,10 +445,10 @@ public class CommandVassalCraft implements CommandExecutor {
 		if(page == 2){
 			player.sendMessage(ChatColor.LIGHT_PURPLE+"---===HELP-[pg 2]===---");
 			player.sendMessage(ChatColor.YELLOW+"listmembers/lm <group...>"+ChatColor.WHITE+" - lists members of a group");
-			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
-			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
-			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
-			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
+			player.sendMessage(ChatColor.YELLOW+"listranks/lr <group...>"+ChatColor.WHITE+" - lists ranks of a group");
+			player.sendMessage(ChatColor.YELLOW+"getperms/gp <rank> <group...>"+ChatColor.WHITE+" - lists the perms of a rank");
+			player.sendMessage(ChatColor.YELLOW+"rank <add:remove> <rank> <name...>"+ChatColor.WHITE+" - adds a player to a specified rank");
+			player.sendMessage(ChatColor.YELLOW+"perm <add:remove> <rank> <perm...>"+ChatColor.WHITE+" - adds a perm to a rank");
 			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
 			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");
 			player.sendMessage(ChatColor.YELLOW+"cmd"+ChatColor.WHITE+" - desc");

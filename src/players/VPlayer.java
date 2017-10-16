@@ -148,6 +148,21 @@ public class VPlayer implements Serializable {
 	}
 	
 	/**
+	 * Gets a lits of ranks from a group
+	 * @param group Group
+	 * @return ArrayList of Rank
+	 */
+	public ArrayList<Rank> getRanks(Group group){
+		ArrayList<Rank> ranks = new ArrayList<Rank>();
+		
+		for(Rank rank: group.getRanks())
+			if(rank.getRanked().contains(this))
+				ranks.add(rank);
+		
+		return ranks;
+	}
+	
+	/**
 	 * Adds an invite from a Group to this player
 	 * @param group Group
 	 */

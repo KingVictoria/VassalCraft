@@ -1,0 +1,6 @@
+/h/ Introduction
+VassalCraft is a new take on the concept of statecraft in minecraft with an express focus on cities, specialization in 
+production, and "intuitivity". The goal is to create a system with the legitimate potential to emulate politics and bring to 
+/p/
+the game the art of Machiavelli: true Statecraft. \n\n
+test.
