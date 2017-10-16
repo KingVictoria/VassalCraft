@@ -24,13 +24,10 @@ import net.minecraft.server.v1_12_R1.IChatBaseComponent;
 import net.minecraft.server.v1_12_R1.IChatBaseComponent.ChatSerializer;
 
 /**
- * Manual for VassalCraft
+ * Makes a book from a file with my special book format!
  * @author KingVictoria
  */
-public class ReferenceBook {
-	
-	private static final String TITLE = ChatColor.LIGHT_PURPLE+""+ChatColor.BOLD+"VassalCraft Manual";
-	private static final String AUTHOR = ChatColor.DARK_PURPLE+"KingVictoria";
+public class Book {
 	
 	private static ItemStack book;
 	private static BookMeta bookMeta;
@@ -44,13 +41,21 @@ public class ReferenceBook {
 	}
 	
 	private static ArrayList<String> pageStrings;
-	static { // There is something so f***ed about this
+	static {
+		
+	}
+	
+	/**
+	 * Gets the contents of a book in a managable format
+	 * @param path String path to the file
+	 */
+	private static void get(String path){
 		pageStrings = new ArrayList<String>();
 		String pageString = "";
 		Scanner scan = null;
 		
 		try{
-			InputStream is = VassalCraft.getInstance().getClass().getResourceAsStream("/assets/Manual.txt");
+			InputStream is = VassalCraft.getInstance().getClass().getResourceAsStream(path);
 			String toScan = "";
 			while(is.available() > 0){
 				toScan += (char) is.read();
@@ -61,6 +66,7 @@ public class ReferenceBook {
 			e.printStackTrace();
 		}
 		int page = 2;
+		boolean newline = false;
 		while(scan.hasNext()){
 			String word = scan.next();
 			if(word.equalsIgnoreCase("/p/")){
@@ -69,20 +75,33 @@ public class ReferenceBook {
 				page++;
 			}else if(word.equalsIgnoreCase("/h/")){
 				section(page, scan.next().replaceAll("_", " "));
+			}else if(word.equalsIgnoreCase("\\n")){
+				pageString += "\n";
+				newline = true;
 			}else if(pageString.length() == 0){
 				pageString = word;
 			}else{
-				pageString += " "+word;
+				if(newline){
+					pageString += word;
+					newline = false;
+				}else{
+					pageString += " "+word;
+				}
+				if(!scan.hasNext())
+					pageStrings.add(pageString);
 			}
 		}
 	}
 	
 	/**
-	 * Gives a given player a ReferenceBook
+	 * Gives a given player a book from a file
 	 * @param player Player
+	 * @param title Title of the book
+	 * @param author Author of the book
+	 * @param path Path to the book file
 	 */
 	@SuppressWarnings("unchecked")
-	public static void give(Player player){
+	public static void give(Player player, String title, String author, String path){
 		
 		// Make New Book
 		book = new ItemStack(Material.WRITTEN_BOOK);
@@ -95,20 +114,21 @@ public class ReferenceBook {
     	    ex.printStackTrace();
     	    return;
     	}
+    	get(path);
     	
     	// Set the Title and Author of this book
-    			bookMeta.setTitle(TITLE);
-    	    	bookMeta.setAuthor(AUTHOR);
+    			bookMeta.setTitle(title);
+    	    	bookMeta.setAuthor(author);
     	
     	// Creates Table of Contents
     	tableOfContents();
     	
     	// Pages
-    	for(int i = 2; i < pageStrings.size()+2; i++)
-    		if(contents.containsKey(i)){
-    			page(contents.get(i), pageStrings.get(i-2));
+    	for(int i = 0; i < pageStrings.size(); i++)
+    		if(contents.containsKey(i+2)){
+    			page(contents.get(i+2), pageStrings.get(i));
     		}else{
-    			page(pageStrings.get(i-2));
+    			page(pageStrings.get(i));
     		}
     	
     	// Update ItemStack with this new meta

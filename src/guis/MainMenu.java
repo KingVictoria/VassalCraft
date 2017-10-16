@@ -2,7 +2,6 @@ package guis;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -27,7 +26,7 @@ public class MainMenu {
                 	event.getPlayer().sendMessage(ChatColor.YELLOW+"https://www.reddit.com/r/VassalCraft/");
                 
                 if(event.getName().equals("Help"))
-                	ReferenceBook.give((Player) event.getPlayer());
+                	Book.give(event.getPlayer(), "VassalCraft Manual", "KingVictoria", "/assets/Manual.txt");
                 
                 event.setWillDestroy(true);
             }
