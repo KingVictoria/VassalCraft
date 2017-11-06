@@ -2,6 +2,7 @@ package guis;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,12 +57,16 @@ public class Book {
 		
 		try{
 			InputStream is = VassalCraft.getInstance().getClass().getResourceAsStream(path);
-			String toScan = "";
+			ArrayList<Byte> bytes = new ArrayList<Byte>();
 			while(is.available() > 0){
-				toScan += (char) is.read();
+				bytes.add((byte) is.read());
 			}
 			is.close();
-			scan = new Scanner(toScan);
+			byte[] bs = new byte[bytes.size()];
+			for(int i = 0; i < bs.length; i++)
+				if(((char) bs[i]) != ' ')
+					bs[i] = bytes.get(i);
+			scan = new Scanner(new String(bs, Charset.forName("UTF-8")));
 		} catch(IOException e){
 			e.printStackTrace();
 		}
